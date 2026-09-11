@@ -37,7 +37,7 @@
 
         <div class="grid-container">
             <!-- Carte 1 : Audit de Mot de Passe -->
-            <div class="card">
+            <div class="card" id="card-audit">
                 <div class="card-top">
                     <div class="card-title">
                         <div class="icon-box"><i class="fa-solid fa-key"></i></div>
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Carte 2 : Surveillance des Fuites E-mail -->
-            <div class="card">
+            <div class="card" id="card-email">
                 <div class="card-top">
                     <div class="card-title">
                         <div class="icon-box"><i class="fa-solid fa-radar"></i></div>
@@ -97,10 +97,8 @@
         <p>CyberGuard Enterprise Security © 2026 — Architecture de Sécurité Opérationnelle</p>
     </footer>
 
-    <!-- Script de gestion des requêtes API -->
+    <!-- Script de gestion des requêtes API et effets de scan -->
     <script>
-        console.log("CyberGuard SOC Script initialisé.");
-
         // Bascule visibilité mot de passe
         const togglePwd = document.getElementById("toggle-password");
         const pwdInput = document.getElementById("password-input");
@@ -116,10 +114,11 @@
             }
         });
 
-        // 1. Audit de Mot de Passe
+        // 1. Audit de Mot de Passe avec effet de scan dynamique
         document.getElementById("btn-analyser").addEventListener("click", async () => {
             const password = pwdInput.value;
             const resultAudit = document.getElementById("result-audit");
+            const cardAudit = document.getElementById("card-audit");
 
             if (!password) {
                 alert("Veuillez saisir un mot de passe à tester.");
@@ -144,6 +143,18 @@
                     let scoreColor = data.score >= 3 ? "var(--neon-green)" : "var(--neon-red)";
                     let statusIcon = data.score >= 3 ? '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color:var(--neon-red)"></i>';
                     
+                    // Déclenchement de l'effet de scan visuel sur la carte
+                    if (data.score >= 3) {
+                        cardAudit.classList.remove('scan-red');
+                        cardAudit.classList.add('scan-green');
+                    } else {
+                        cardAudit.classList.remove('scan-green');
+                        cardAudit.classList.add('scan-red');
+                    }
+                    setTimeout(() => {
+                        cardAudit.classList.remove('scan-green', 'scan-red');
+                    }, 1200);
+
                     resultAudit.innerHTML = `
                         <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
                         <p class="result-msg">${data.message}</p>
@@ -152,16 +163,16 @@
                             <strong style="color: ${scoreColor}">${data.score} / 4</strong>
                         </div>
                         <div class="score-bar-bg">
-                            <div class="score-bar-fill" style="width: ${data.score * 25}%; background-color: ${scoreColor}; color: ${scoreColor};"></div>
+                            <div class="score-bar-fill" style="width: ${data.score * 25}%; background-color: ${scoreColor};"></div>
                         </div>
                     `;
                 } else {
-                    resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur d'analyse : ${data.detail || "Échec"}</span>`;
+                    resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur d'analyse</span>`;
                 }
             } catch (error) {
                 console.error("Erreur réseau :", error);
                 resultAudit.style.display = "block";
-                resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de joindre le service d'audit.</span>`;
+                resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de joindre le service.</span>`;
             } finally {
                 btn.innerHTML = `<span>Lancer l'audit de robustesse</span><i class="fa-solid fa-arrow-right"></i>`;
                 btn.disabled = false;
@@ -173,6 +184,7 @@
             const emailInput = document.getElementById("email-input");
             const email = emailInput.value;
             const resultEmail = document.getElementById("result-email");
+            const cardEmail = document.getElementById("card-email");
 
             if (!email) {
                 alert("Veuillez saisir une adresse e-mail.");
@@ -182,6 +194,10 @@
             const btn = document.getElementById("btn-email");
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Recherche OSINT...`;
             btn.disabled = true;
+
+            // Petit effet de scan neutre/cyan pour l'e-mail
+            cardEmail.classList.add('scan-cyan');
+            setTimeout(() => { cardEmail.classList.remove('scan-cyan'); }, 1200);
 
             try {
                 const response = await fetch('/api/breach', {
@@ -200,12 +216,12 @@
                         <div class="scan-target">Périmètre audité : <code>${email}</code></div>
                     `;
                 } else {
-                    resultEmail.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur : ${data.detail || "Investigation impossible"}</span>`;
+                    resultEmail.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur d'investigation</span>`;
                 }
             } catch (error) {
                 console.error("Erreur réseau :", error);
                 resultEmail.style.display = "block";
-                resultEmail.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur de communication réseau.</span>`;
+                resultEmail.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur réseau.</span>`;
             } finally {
                 btn.innerHTML = `<span>Lancer l'investigation</span><i class="fa-solid fa-magnifying-glass"></i>`;
                 btn.disabled = false;

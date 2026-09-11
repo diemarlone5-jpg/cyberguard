@@ -206,6 +206,36 @@ body {
     box-shadow: 0 20px 50px rgba(0, 229, 255, 0.08);
 }
 
+/* === EFFETS DE SCAN DYNAMIQUES POUR LA CONFÉRENCE === */
+.card.scan-green {
+    animation: flashGreen 1.2s ease;
+}
+.card.scan-red {
+    animation: flashRed 1.2s ease;
+}
+.card.scan-cyan {
+    animation: flashCyan 1.2s ease;
+}
+
+@keyframes flashGreen {
+    0% { border-color: var(--border-cyber); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+    30% { border-color: var(--neon-green); box-shadow: 0 0 35px rgba(16, 185, 129, 0.6), inset 0 0 20px rgba(16, 185, 129, 0.3); }
+    100% { border-color: var(--border-cyber); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+}
+
+@keyframes flashRed {
+    0% { border-color: var(--border-cyber); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+    30% { border-color: var(--neon-red); box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), inset 0 0 20px rgba(239, 68, 68, 0.3); }
+    100% { border-color: var(--border-cyber); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+}
+
+@keyframes flashCyan {
+    0% { border-color: var(--border-cyber); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+    30% { border-color: var(--neon-cyan); box-shadow: 0 0 35px rgba(0, 229, 255, 0.6), inset 0 0 20px rgba(0, 229, 255, 0.3); }
+    100% { border-color: var(--border-cyber); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+}
+/* ================================================= */
+
 .card-title {
     display: flex;
     align-items: center;
