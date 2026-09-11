@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+zxcvbn-python
+requests
+pydantic
+email-validator
+python-telegram-bot

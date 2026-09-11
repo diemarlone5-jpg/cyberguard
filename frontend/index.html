@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Barre de Navigation Enterprise -->
+    <nav class="navbar">
+        <div class="brand">
+            <div class="logo-icon">🛡️</div>
+            <div class="brand-name">CYBER<span>GUARD</span></div>
+        </div>
+        <div class="status-badge">
+            <div class="dot"></div>
+            API operational
+        </div>
+    </nav>
+
+    <!-- Conteneur Dashboard -->
+    <div class="main-wrapper">
+        <div class="dashboard-header">
+            <h1>Plateforme d'Analyse de Sécurité</h1>
+            <p>Évaluez la robustesse de vos identifiants et vérifiez l'exposition aux fuites de données.</p>
+        </div>
+
+        <div class="grid-container">
+            
+            <!-- Module 1 : Password Audit -->
+            <div class="card">
+                <div>
+                    <div class="card-title">🔑 Audit de Mot de Passe</div>
+                    <div class="input-group">
+                        <label>Mot de passe à tester</label>
+                        <input type="password" id="passwordInput" placeholder="Saisissez une chaîne de caractères..." autocomplete="off">
+                    </div>
+                </div>
+                <div>
+                    <button type="button" onclick="checkPassword()">Analyser la sécurité</button>
+                    <div id="passwordResult" class="result-box" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- Module 2 : Email Breach Check -->
+            <div class="card">
+                <div>
+                    <div class="card-title">🔍 Surveillance des Fuites E-mail</div>
+                    <div class="input-group">
+                        <label>Adresse e-mail professionnelle</label>
+                        <input type="email" id="emailInput" placeholder="nom@entreprise.com" autocomplete="off">
+                    </div>
+                </div>
+                <div>
+                    <button type="button" onclick="checkEmail()">Lancer l'investigation</button>
+                    <div id="emailResult" class="result-box" style="display:none;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function sendApiRequest(endpoint, bodyData) {
+            const urls = [
+                `http://127.0.0.1:8000/api/${endpoint}`,
+                `http://localhost:8000/api/${endpoint}`
+            ];
+
+            for (let url of urls) {
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(bodyData)
+                    });
+                    if (response.ok) return await response.json();
+                } catch (e) {}
+            }
+            throw new Error("Impossible de joindre le serveur de sécurité.");
+        }
+
+        async function checkPassword() {
+            const pwd = document.getElementById("passwordInput").value.trim();
+            const resDiv = document.getElementById("passwordResult");
+            if (!pwd) return;
+
+            resDiv.style.display = "block";
+            resDiv.innerHTML = "<p style='color:#00E5FF;'>⏳ Analyse algorithmique en cours...</p>";
+
+            try {
+                const data = await sendApiRequest("check-password", { password: pwd });
+                
+                // Calcul de la couleur selon le score
+                let colors = ["#EF4444", "#F59E0B", "#F59E0B", "#10B981", "#00E5FF"];
+                let percent = ((data.score + 1) / 5) * 100;
+                let currentColor = colors[data.score];
+
+                let html = `
+                    <div style="display:flex; justify-shadow:space-between; align-items:center;">
+                        <span>Niveau de résistance :</span>
+                        <strong style="color:${currentColor};">${data.strength}</strong>
+                    </div>
+                    <div class="score-bar-bg">
+                        <div class="score-bar-fill" style="width:${percent}%; background-color:${currentColor};"></div>
+                    </div>
+                `;
+
+                if (data.warning) {
+                    html += `<p style='color:#F59E0B; margin-top:8px;'>⚠️ <strong>Vigilance :</strong> ${data.warning}</p>`;
+                }
+                if (data.suggestions && data.suggestions.length > 0) {
+                    html += "<p style='color:#94A3B8; margin-top:8px;'><strong>Recommandations :</strong></p><ul style='margin:4px 0; padding-left:18px;'>";
+                    data.suggestions.forEach(s => html += `<li>${s}</li>`);
+                    html += "</ul>";
+                }
+                resDiv.innerHTML = html;
+            } catch (err) {
+                resDiv.innerHTML = `<p style='color:#EF4444;'>❌ ${err.message}</p>`;
+            }
+        }
+
+        async function checkEmail() {
+            const email = document.getElementById("emailInput").value.trim();
+            const resDiv = document.getElementById("emailResult");
+            if (!email) return;
+
+            resDiv.style.display = "block";
+            resDiv.innerHTML = "<p style='color:#00E5FF;'>⏳ Interrogation de la base d'incidents...</p>";
+
+            try {
+                const data = await sendApiRequest("check-email", { email: email });
+                if (data.compromised) {
+                    let html = "<p style='color:#EF4444;'>🚨 <strong>Alerte : Adresse compromise !</strong></p>";
+                    html += "<p style='color:#94A3B8;'>Incidents identifiés :</p><ul style='margin:4px 0; padding-left:18px;'>";
+                    data.breaches.forEach(b => html += `<li style='color:#F59E0B;'>${b}</li>`);
+                    html += "</ul>";
+                    resDiv.innerHTML = html;
+                } else {
+                    resDiv.innerHTML = "<p style='color:#10B981;'>✅ <strong>Conforme :</strong> Aucune fuite connue associée à cette adresse.</p>";
+                }
+            } catch (err) {
+                resDiv.innerHTML = `<p style='color:#EF4444;'>❌ ${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
