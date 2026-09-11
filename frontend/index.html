@@ -3,84 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberGuard - Plateforme d'Analyse de Sécurité</title>
-    <!-- Lien vers le CSS -->
+    <title>CyberGuard | Security Operations Center</title>
     <link rel="stylesheet" href="/static/style.css">
-    <!-- FontAwesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Barre de navigation -->
-    <nav class="navbar">
+    <!-- Barre de navigation SOC -->
+    <header class="navbar">
         <div class="brand">
-            <div class="logo-icon">CG</div>
+            <div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
             <div class="brand-name">CYBER<span>GUARD</span></div>
         </div>
-        <div class="status-badge">
-            <div class="dot"></div>
-            API operational
+        <div class="nav-right">
+            <div class="status-badge">
+                <div class="dot"></div>
+                <span>SecOps Active</span>
+            </div>
+            <div class="conf-badge">
+                <i class="fa-solid fa-microphone-lines"></i> Conférence Live
+            </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Conteneur principal -->
-    <div class="main-wrapper">
-        <div class="dashboard-header">
-            <h1>Plateforme d'Analyse de Sécurité</h1>
-            <p>Évaluez la robustesse de vos identifiants et vérifiez l'exposition aux fuites de données.</p>
-        </div>
+    <main class="main-wrapper">
+        <section class="dashboard-header">
+            <div class="badge-tag"><i class="fa-solid fa-lock"></i> Intelligence & Audit de Sécurité</div>
+            <h1>Plateforme d'Évaluation des Risques</h1>
+            <p>Analysez en temps réel la robustesse cryptographique de vos mots de passe et auditez l'exposition de vos identifiants face aux fuites de données.</p>
+        </section>
 
         <div class="grid-container">
             <!-- Carte 1 : Audit de Mot de Passe -->
             <div class="card">
-                <div>
+                <div class="card-top">
                     <div class="card-title">
-                        <i class="fa-solid fa-key"></i> Audit de Mot de Passe
+                        <div class="icon-box"><i class="fa-solid fa-key"></i></div>
+                        <h2>Audit de Mot de Passe</h2>
                     </div>
+                    <p class="card-desc">Évalue l'entropie, la longueur et la résistance aux attaques par force brute ou dictionnaires.</p>
+                    
                     <div class="input-group">
-                        <label for="password-input">Mot de passe à tester</label>
-                        <input type="password" id="password-input" placeholder="Saisissez une chaîne de caractères">
+                        <label for="password-input">Chaîne cryptographique cible</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password-input" placeholder="Saisissez un mot de passe...">
+                            <i class="fa-regular fa-eye toggle-pwd" id="toggle-password" title="Afficher / Masquer"></i>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <button type="button" id="btn-analyser">Analyser la sécurité</button>
+
+                <div class="card-bottom">
+                    <button type="button" id="btn-analyser" class="btn-primary">
+                        <span>Lancer l'audit de robustesse</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                     <div id="result-audit" class="result-box" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- Carte 2 : Surveillance des Fuites E-mail -->
             <div class="card">
-                <div>
+                <div class="card-top">
                     <div class="card-title">
-                        <i class="fa-solid fa-shield-halved"></i> Surveillance des Fuites E-mail
+                        <div class="icon-box"><i class="fa-solid fa-radar"></i></div>
+                        <h2>Veille des Expositions (OSINT)</h2>
                     </div>
+                    <p class="card-desc">Vérifie l'intégrité d'une adresse e-mail professionnelle au sein des bases de données compromises.</p>
+                    
                     <div class="input-group">
                         <label for="email-input">Adresse e-mail professionnelle</label>
-                        <input type="email" id="email-input" placeholder="nom@entreprise.com">
+                        <div class="input-wrapper">
+                            <input type="email" id="email-input" placeholder="nom@entreprise.com">
+                            <i class="fa-regular fa-envelope"></i>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <button type="button" id="btn-email">Lancer l'investigation</button>
+
+                <div class="card-bottom">
+                    <button type="button" id="btn-email" class="btn-primary">
+                        <span>Lancer l'investigation</span>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
                     <div id="result-email" class="result-box" style="display: none;"></div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Script JavaScript intégré directement pour garantir son exécution -->
+    <!-- Pied de page -->
+    <footer class="footer">
+        <p>CyberGuard Enterprise Security © 2026 — Architecture de Sécurité Opérationnelle</p>
+    </footer>
+
+    <!-- Script de gestion des requêtes API -->
     <script>
-        console.log("Script interne CyberGuard chargé !");
+        console.log("CyberGuard SOC Script initialisé.");
+
+        // Bascule visibilité mot de passe
+        const togglePwd = document.getElementById("toggle-password");
+        const pwdInput = document.getElementById("password-input");
+        togglePwd.addEventListener("click", () => {
+            if (pwdInput.type === "password") {
+                pwdInput.type = "text";
+                togglePwd.classList.replace("fa-regular", "fa-solid");
+                togglePwd.style.color = "var(--neon-cyan)";
+            } else {
+                pwdInput.type = "password";
+                togglePwd.classList.replace("fa-solid", "fa-regular");
+                togglePwd.style.color = "var(--text-muted)";
+            }
+        });
 
         // 1. Audit de Mot de Passe
         document.getElementById("btn-analyser").addEventListener("click", async () => {
-            const passwordInput = document.getElementById("password-input");
+            const password = pwdInput.value;
             const resultAudit = document.getElementById("result-audit");
-            const password = passwordInput.value;
 
             if (!password) {
                 alert("Veuillez saisir un mot de passe à tester.");
                 return;
             }
+
+            const btn = document.getElementById("btn-analyser");
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Calcul en cours...`;
+            btn.disabled = true;
 
             try {
                 const response = await fetch('/api/audit', {
@@ -93,27 +141,47 @@
                 resultAudit.style.display = "block";
                 
                 if (response.ok) {
-                    resultAudit.innerHTML = `<strong>Résultat :</strong> ${data.message} <br><strong>Score :</strong> ${data.score} / 4`;
+                    let scoreColor = data.score >= 3 ? "var(--neon-green)" : "var(--neon-red)";
+                    let statusIcon = data.score >= 3 ? '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color:var(--neon-red)"></i>';
+                    
+                    resultAudit.innerHTML = `
+                        <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
+                        <p class="result-msg">${data.message}</p>
+                        <div class="score-meta">
+                            <span>Indice de robustesse :</span>
+                            <strong style="color: ${scoreColor}">${data.score} / 4</strong>
+                        </div>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" style="width: ${data.score * 25}%; background-color: ${scoreColor}; color: ${scoreColor};"></div>
+                        </div>
+                    `;
                 } else {
-                    resultAudit.innerHTML = `<span style="color: #EF4444;">Erreur : ${data.detail || "Impossible d'analyser"}</span>`;
+                    resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur d'analyse : ${data.detail || "Échec"}</span>`;
                 }
             } catch (error) {
                 console.error("Erreur réseau :", error);
                 resultAudit.style.display = "block";
-                resultAudit.innerHTML = `<span style="color: #EF4444;">❌ Impossible de joindre le serveur.</span>`;
+                resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-triangle-exclamation"></i> Impossible de joindre le service d'audit.</span>`;
+            } finally {
+                btn.innerHTML = `<span>Lancer l'audit de robustesse</span><i class="fa-solid fa-arrow-right"></i>`;
+                btn.disabled = false;
             }
         });
 
         // 2. Fuite E-mail
         document.getElementById("btn-email").addEventListener("click", async () => {
             const emailInput = document.getElementById("email-input");
-            const resultEmail = document.getElementById("result-email");
             const email = emailInput.value;
+            const resultEmail = document.getElementById("result-email");
 
             if (!email) {
                 alert("Veuillez saisir une adresse e-mail.");
                 return;
             }
+
+            const btn = document.getElementById("btn-email");
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Recherche OSINT...`;
+            btn.disabled = true;
 
             try {
                 const response = await fetch('/api/breach', {
@@ -126,14 +194,21 @@
                 resultEmail.style.display = "block";
                 
                 if (response.ok) {
-                    resultEmail.innerHTML = `<strong>Investigation :</strong> ${data.message}`;
+                    resultEmail.innerHTML = `
+                        <div class="result-header"><i class="fa-solid fa-shield-halved" style="color:var(--neon-cyan)"></i> <strong>Résultat de l'Investigation</strong></div>
+                        <p class="result-msg">${data.message}</p>
+                        <div class="scan-target">Périmètre audité : <code>${email}</code></div>
+                    `;
                 } else {
-                    resultEmail.innerHTML = `<span style="color: #EF4444;">Erreur : ${data.detail || "Investigation impossible"}</span>`;
+                    resultEmail.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur : ${data.detail || "Investigation impossible"}</span>`;
                 }
             } catch (error) {
                 console.error("Erreur réseau :", error);
                 resultEmail.style.display = "block";
-                resultEmail.innerHTML = `<span style="color: #EF4444;">❌ Impossible de joindre le serveur.</span>`;
+                resultEmail.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-triangle-exclamation"></i> Erreur de communication réseau.</span>`;
+            } finally {
+                btn.innerHTML = `<span>Lancer l'investigation</span><i class="fa-solid fa-magnifying-glass"></i>`;
+                btn.disabled = false;
             }
         });
     </script>
