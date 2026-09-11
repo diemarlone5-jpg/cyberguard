@@ -1,82 +1,75 @@
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import re
 
-app = Flask(__name__)
-# Active CORS pour autoriser les requêtes venant de votre site web
-CORS(app)
+app = FastAPI()
 
-@app.route('/')
-def index():
-    # S'assure de renvoyer votre page HTML principale (située dans le dossier templates)
-    return render_template('index.html')
+# 1. Activer CORS pour autoriser les requêtes sur Render
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Autorise toutes les origines
+    allow_credentials=True,
+    allow_methods=["*"],  # Autorise toutes les méthodes (POST, GET, etc.)
+    allow_headers=["*"],  # Autorise tous les headers
+)
 
-@app.route('/api/audit', methods=['POST'])
-def audit_password():
-    try:
-        data = request.get_json()
-        password = data.get('password', '')
+# Schémas de données reçues du frontend
+class PasswordRequest(BaseModel):
+    password: str
+
+class EmailRequest(BaseModel):
+    email: str
+
+@app.post("/api/audit")
+def audit_password(data: PasswordRequest):
+    password = data.password
+    
+    if not password:
+        raise HTTPException(status_code=400, detail="Mot de passe vide")
         
-        # Logique de vérification basique de robustesse
-        if not password:
-            return jsonify({"status": "error", "message": "Mot de passe vide"}), 400
-            
-        score = 0
-        feedback = []
+    score = 0
+    feedback = []
+    
+    if len(password) >= 8:
+        score += 1
+    else:
+        feedback.append("Le mot de passe doit faire au moins 8 caractères.")
         
-        if len(password) >= 8:
-            score += 1
-        else:
-            feedback.append("Le mot de passe doit faire au moins 8 caractères.")
-            
-        if re.search(r"[A-Z]", password):
-            score += 1
-        else:
-            feedback.append("Ajoutez des majuscules.")
-            
-        if re.search(r"[0-9]", password):
-            score += 1
-        else:
-            feedback.append("Ajoutez des chiffres.")
-            
-        if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-            score += 1
-        else:
-            feedback.append("Ajoutez des caractères spéciaux.")
-
-        is_secure = score >= 3
+    if re.search(r"[A-Z]", password):
+        score += 1
+    else:
+        feedback.append("Ajoutez des majuscules.")
         
-        return jsonify({
-            "status": "success",
-            "secure": is_secure,
-            "score": score,
-            "feedback": feedback,
-            "message": "Mot de passe sécurisé !" if is_secure else "Mot de passe trop faible."
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/breach', methods=['POST'])
-def check_breach():
-    try:
-        data = request.get_json()
-        email = data.get('email', '')
+    if re.search(r"[0-9]", password):
+        score += 1
+    else:
+        feedback.append("Ajoutez des chiffres.")
         
-        if not email or '@' not in email:
-            return jsonify({"status": "error", "message": "Adresse e-mail invalide"}), 400
-            
-        # Simulation de vérification de fuite (à connecter à une API externe si besoin)
-        # Par défaut, on simule qu'aucune fuite n'a été trouvée pour cet exemple
-        return jsonify({
-            "status": "success",
-            "leached": False,
-            "message": f"Aucune fuite détectée pour l'adresse : {email}"
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        score += 1
+    else:
+        feedback.append("Ajoutez des caractères spéciaux.")
 
-if __name__ == '__main__':
-    # Render utilise un port dynamique ou le port 5000 par défaut en local
-    import os
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    is_secure = score >= 3
+    
+    return {
+        "status": "success",
+        "secure": is_secure,
+        "score": score,
+        "feedback": feedback,
+        "message": "Mot de passe sécurisé !" if is_secure else "Mot de passe trop faible."
+    }
+
+@app.post("/api/breach")
+def check_breach(data: EmailRequest):
+    email = data.email
+    
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Adresse e-mail invalide")
+        
+    return {
+        "status": "success",
+        "leached": False,
+        "message": f"Aucune fuite détectée pour l'adresse : {email}"
+    }
