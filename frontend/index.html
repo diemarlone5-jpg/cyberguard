@@ -97,9 +97,8 @@
         <p>CyberGuard Enterprise Security © 2026 — Architecture de Sécurité Opérationnelle</p>
     </footer>
 
-    <!-- Script de gestion des requêtes API et effets de scan -->
+    <!-- Script JavaScript -->
     <script>
-        // Bascule visibilité mot de passe
         const togglePwd = document.getElementById("toggle-password");
         const pwdInput = document.getElementById("password-input");
         togglePwd.addEventListener("click", () => {
@@ -114,7 +113,7 @@
             }
         });
 
-        // 1. Audit de Mot de Passe avec effet de scan dynamique
+        // 1. Audit de Mot de Passe
         document.getElementById("btn-analyser").addEventListener("click", async () => {
             const password = pwdInput.value;
             const resultAudit = document.getElementById("result-audit");
@@ -143,7 +142,7 @@
                     let scoreColor = data.score >= 3 ? "var(--neon-green)" : "var(--neon-red)";
                     let statusIcon = data.score >= 3 ? '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color:var(--neon-red)"></i>';
                     
-                    // Déclenchement de l'effet de scan visuel sur la carte
+                    // Gestion de l'effet de scan visuel sur la carte
                     if (data.score >= 3) {
                         cardAudit.classList.remove('scan-red');
                         cardAudit.classList.add('scan-green');
@@ -155,10 +154,26 @@
                         cardAudit.classList.remove('scan-green', 'scan-red');
                     }, 1200);
 
-                    resultAudit.innerHTML = `
-                        <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
-                        <p class="result-msg">${data.message}</p>
-                        <div class="score-meta">
+                    // Si le mot de passe est faible/critique, on affiche les recommandations exactes sous forme de liste
+                    let contentHTML = "";
+                    if (data.score < 3) {
+                        contentHTML = `
+                            <div class="result-header">${statusIcon} <strong>Alerte de Sécurité : Vulnérabilité Critique</strong></div>
+                            <ul class="recommendation-list">
+                                <li><strong>Critique :</strong> Le mot de passe est trop court (moins de 8 caractères).</li>
+                                <li>Combinez des lettres majuscules et minuscules.</li>
+                                <li>Ajoutez des caractères spéciaux pour renforcer la complexité.</li>
+                            </ul>
+                        `;
+                    } else {
+                        contentHTML = `
+                            <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
+                            <p class="result-msg">${data.message}</p>
+                        `;
+                    }
+
+                    contentHTML += `
+                        <div class="score-meta" style="margin-top: 14px;">
                             <span>Indice de robustesse :</span>
                             <strong style="color: ${scoreColor}">${data.score} / 4</strong>
                         </div>
@@ -166,6 +181,8 @@
                             <div class="score-bar-fill" style="width: ${data.score * 25}%; background-color: ${scoreColor};"></div>
                         </div>
                     `;
+
+                    resultAudit.innerHTML = contentHTML;
                 } else {
                     resultAudit.innerHTML = `<span style="color: var(--neon-red);"><i class="fa-solid fa-circle-xmark"></i> Erreur d'analyse</span>`;
                 }
@@ -195,7 +212,6 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Recherche OSINT...`;
             btn.disabled = true;
 
-            // Petit effet de scan neutre/cyan pour l'e-mail
             cardEmail.classList.add('scan-cyan');
             setTimeout(() => { cardEmail.classList.remove('scan-cyan'); }, 1200);
 
