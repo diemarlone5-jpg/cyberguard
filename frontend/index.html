@@ -97,7 +97,7 @@
         <p>CyberGuard Enterprise Security © 2026 — Architecture de Sécurité Opérationnelle</p>
     </footer>
 
-    <!-- Script JavaScript -->
+    <!-- Script de gestion et effets -->
     <script>
         const togglePwd = document.getElementById("toggle-password");
         const pwdInput = document.getElementById("password-input");
@@ -142,7 +142,6 @@
                     let scoreColor = data.score >= 3 ? "var(--neon-green)" : "var(--neon-red)";
                     let statusIcon = data.score >= 3 ? '<i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color:var(--neon-red)"></i>';
                     
-                    // Gestion de l'effet de scan visuel sur la carte
                     if (data.score >= 3) {
                         cardAudit.classList.remove('scan-red');
                         cardAudit.classList.add('scan-green');
@@ -154,7 +153,6 @@
                         cardAudit.classList.remove('scan-green', 'scan-red');
                     }, 1200);
 
-                    // Si le mot de passe est faible/critique, on affiche les recommandations exactes sous forme de liste
                     let contentHTML = "";
                     if (data.score < 3) {
                         contentHTML = `
