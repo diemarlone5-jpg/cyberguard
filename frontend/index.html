@@ -170,10 +170,7 @@
             background: rgba(3, 7, 18, 0.95); border: 1px solid var(--border-cyber); font-size: 13px;
         }
         .result-header { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
-        
-        .recommendation-list { margin: 8px 0 12px 0; padding-left: 20px; color: var(--text-muted); font-size: 13px; font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
-        .recommendation-list li { margin-bottom: 6px; }
-        .recommendation-list li strong { color: var(--neon-red); }
+        .result-msg { color: var(--text-muted); font-size: 13.5px; margin: 0 0 12px 0; font-family: 'JetBrains Mono', monospace; }
 
         .score-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; }
         .score-bar-bg { width: 100%; height: 7px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -312,24 +309,10 @@
                     }
                     setTimeout(() => { cardAudit.classList.remove('scan-green', 'scan-red'); }, 1200);
 
-                    let contentHTML = "";
-                    if (data.score < 3) {
-                        contentHTML = `
-                            <div class="result-header">${statusIcon} <strong>Alerte de Sécurité : Vulnérabilité Critique</strong></div>
-                            <ul class="recommendation-list">
-                                <li><strong>Critique :</strong> Le mot de passe est trop court (moins de 8 caractères).</li>
-                                <li>Combinez des lettres majuscules et minuscules.</li>
-                                <li>Ajoutez des caractères spéciaux pour renforcer la complexité.</li>
-                            </ul>
-                        `;
-                    } else {
-                        contentHTML = `
-                            <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
-                            <p style="color:var(--text-muted); margin: 0 0 12px 0;">${data.message}</p>
-                        `;
-                    }
-
-                    contentHTML += `
+                    // Affichage du message renvoyé par l'API (ex: "Mot de passe très faible", etc.)
+                    resultAudit.innerHTML = `
+                        <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
+                        <p class="result-msg">${data.message}</p>
                         <div class="score-meta">
                             <span>Indice de robustesse :</span>
                             <strong style="color: ${scoreColor}">${data.score} / 4</strong>
@@ -338,7 +321,6 @@
                             <div class="score-bar-fill" style="width: ${data.score * 25}%; background-color: ${scoreColor};"></div>
                         </div>
                     `;
-                    resultAudit.innerHTML = contentHTML;
                 } else {
                     resultAudit.innerHTML = `<span style="color: var(--neon-red);">Erreur d'analyse</span>`;
                 }
@@ -379,7 +361,7 @@
                 if (response.ok) {
                     resultEmail.innerHTML = `
                         <div class="result-header"><i class="fa-solid fa-shield-halved" style="color:var(--neon-cyan)"></i> <strong>Résultat de l'Investigation</strong></div>
-                        <p style="color:var(--text-muted); margin: 0 0 12px 0;">${data.message}</p>
+                        <p class="result-msg">${data.message}</p>
                         <div class="scan-target">Périmètre audité : <code>${email}</code></div>
                     `;
                 } else {
