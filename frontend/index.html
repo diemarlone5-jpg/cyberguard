@@ -171,17 +171,21 @@
         }
         .result-header { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
         
-        /* Style pour les listes de conseils renvoyées par le backend */
-        .result-msg ul {
-            margin: 8px 0 12px 0;
-            padding-left: 18px;
+        /* Style renforcé pour s'assurer que les conseils apparaissent bien en puces */
+        .result-msg {
             color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
             font-size: 13px;
             line-height: 1.5;
+            margin: 0 0 12px 0;
+        }
+        .result-msg ul {
+            margin: 8px 0;
+            padding-left: 20px;
         }
         .result-msg li {
             margin-bottom: 6px;
+            color: var(--text-muted);
         }
 
         .score-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; }
@@ -226,8 +230,8 @@
                     <div class="input-group">
                         <label for="password-input">Chaîne cryptographique cible</label>
                         <div class="input-wrapper">
-                            <input type="password" id="password-input" placeholder="Saisissez un mot de passe...">
-                            <i class="fa-regular fa-eye toggle-pwd" id="toggle-password"></i>
+                            <input type="text" id="password-input" placeholder="Saisissez un mot de passe ou des chiffres...">
+                            <i class="fa-regular fa-eye toggle-pwd" id="toggle-password" title="Masquer/Afficher"></i>
                         </div>
                     </div>
                 </div>
@@ -277,22 +281,47 @@
     <script>
         const togglePwd = document.getElementById("toggle-password");
         const pwdInput = document.getElementById("password-input");
+        let isMasked = false;
+        
         togglePwd.addEventListener("click", () => {
-            if (pwdInput.type === "password") {
-                pwdInput.type = "text";
+            isMasked = !isMasked;
+            if (isMasked) {
+                pwdInput.style.webkitTextSecurity = "disc";
                 togglePwd.classList.replace("fa-regular", "fa-solid");
             } else {
-                pwdInput.type = "password";
+                pwdInput.style.webkitTextSecurity = "none";
                 togglePwd.classList.replace("fa-solid", "fa-regular");
             }
         });
+
+        // Fonction intelligente pour transformer n'importe quel texte ou HTML du backend en puces propres
+        function formatMessage(rawMessage) {
+            if (!rawMessage) return "";
+            // Si le backend renvoie déjà du HTML avec des balises <ul> ou <li>
+            if (rawMessage.includes("<li") || rawMessage.includes("<ul")) {
+                return `<div class="result-msg">${rawMessage}</div>`;
+            }
+            
+            // Sinon, si c'est du texte brut avec des retours à la ligne ou des points, on le découpe en puces
+            let lines = rawMessage.split(/\r?\n|•|- /).map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length > 1) {
+                let htmlList = "<ul>";
+                lines.forEach(line => {
+                    htmlList += `<li>${line}</li>`;
+                });
+                htmlList += "</ul>";
+                return `<div class="result-msg">${htmlList}</div>`;
+            }
+            
+            return `<div class="result-msg">${rawMessage}</div>`;
+        }
 
         document.getElementById("btn-analyser").addEventListener("click", async () => {
             const password = pwdInput.value;
             const resultAudit = document.getElementById("result-audit");
             const cardAudit = document.getElementById("card-audit");
 
-            if (!password) { alert("Veuillez saisir un mot de passe."); return; }
+            if (!password) { alert("Veuillez saisir un mot de passe ou une chaîne."); return; }
 
             const btn = document.getElementById("btn-analyser");
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Calcul en cours...`;
@@ -321,10 +350,9 @@
                     }
                     setTimeout(() => { cardAudit.classList.remove('scan-green', 'scan-red'); }, 1200);
 
-                    // On injecte data.message directement car ton backend renvoie déjà le HTML formaté (<ul><li>...)
                     resultAudit.innerHTML = `
                         <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
-                        <div class="result-msg">${data.message}</div>
+                        ${formatMessage(data.message)}
                         <div class="score-meta">
                             <span>Indice de robustesse :</span>
                             <strong style="color: ${scoreColor}">${data.score} / 4</strong>
@@ -373,7 +401,7 @@
                 if (response.ok) {
                     resultEmail.innerHTML = `
                         <div class="result-header"><i class="fa-solid fa-shield-halved" style="color:var(--neon-cyan)"></i> <strong>Résultat de l'Investigation</strong></div>
-                        <div class="result-msg">${data.message}</div>
+                        ${formatMessage(data.message)}
                         <div class="scan-target">Périmètre audité : <code>${email}</code></div>
                     `;
                 } else {
