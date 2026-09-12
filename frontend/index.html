@@ -233,7 +233,8 @@
             <div class="card" id="card-email">
                 <div class="card-top">
                     <div class="card-title">
-                        <div class="icon-box"><i class="fa-solid fa-radar"></i></div>
+                        <!-- LA CORRECTION EST ICI : on utilise satellite-dish au lieu de radar -->
+                        <div class="icon-box"><i class="fa-solid fa-satellite-dish"></i></div>
                         <h2>Veille des Expositions (OSINT)</h2>
                     </div>
                     <p class="card-desc">Vérifie l'intégrité d'une adresse e-mail professionnelle au sein des bases de données compromises.</p>
@@ -309,7 +310,6 @@
                     }
                     setTimeout(() => { cardAudit.classList.remove('scan-green', 'scan-red'); }, 1200);
 
-                    // Affichage du message renvoyé par l'API (ex: "Mot de passe très faible", etc.)
                     resultAudit.innerHTML = `
                         <div class="result-header">${statusIcon} <strong>Rapport d'Évaluation Cryptographique</strong></div>
                         <p class="result-msg">${data.message}</p>
