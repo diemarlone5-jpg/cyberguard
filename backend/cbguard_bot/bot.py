@@ -12,7 +12,9 @@ from telegram.ext import (
 )
 
 # 🔑 TON TOKEN TELEGRAM
-TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+if not TELEGRAM_BOT_TOKEN:
+    exit("Erreur : La variable d'environnement TELEGRAM_BOT_TOKEN doit être définie.")
 
 # URL de ton API FastAPI
 API_URL = "http://127.0.0.1:8000/api"
