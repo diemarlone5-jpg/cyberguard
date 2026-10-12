@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # 🔑 TON TOKEN TELEGRAM
-TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]  # Mets ton vrai token ici
+TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 
 # URL de ton API FastAPI
 API_URL = "http://127.0.0.1:8000/api"
