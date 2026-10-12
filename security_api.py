@@ -12,7 +12,6 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,7 +47,7 @@ def audit_password(data: PasswordRequest):
         len(password) >= 8,
         bool(re.search(r"[A-Z]", password)),
         bool(re.search(r"[0-9]", password)),
-        bool(re.search(r"[!@#$%^&*(),.?\":{}|<>]", password))
+        bool(re.search(r"[!@#$%^&*(),.?\\\":{}|<>]", password))
     ])
     
     is_secure = score >= 3
