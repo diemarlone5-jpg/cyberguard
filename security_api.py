@@ -9,10 +9,13 @@ import re
 app = FastAPI()
 
 # 1. Activer CORS
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "")
+origins = [origin.strip() for origin in allowed_origins_str.split(',') if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=origins,
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
