@@ -97,13 +97,42 @@ tests/
   test_api.py   tests de sécurité
 ```
 
-## Déploiement (Render)
+## Déploiement (Vercel)
 
-1. Service **Web** : commande `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-2. Service **Background Worker** (pour le bot) : commande `python -m bot.main`.
-3. Variables d'environnement à définir sur les deux services :
-   `ENVIRONMENT=production`, `TELEGRAM_BOT_TOKEN`, `CYBERGUARD_API_URL`
-   (l'URL publique du service web), `HIBP_API_KEY` si vous en avez une.
+Le projet est prêt pour Vercel : `vercel.json` déclare un service unique
+(`api/index.py`, qui réexporte l'application FastAPI) et route tout le trafic
+public vers lui.
+
+```bash
+vercel deploy --prod          # depuis la racine du projet
+```
+
+Variable d'environnement à définir dans le projet Vercel (Settings →
+Environment Variables) :
+
+| Variable | Valeur |
+|---|---|
+| `ENVIRONMENT` | `production` (ferme `/docs` et `/openapi.json`) |
+| `TELEGRAM_BOT_TOKEN` | seulement si vous activez le bot |
+| `HIBP_API_KEY` | seulement si vous avez une clé Have I Been Pwned |
+
+Points à connaître sur Vercel :
+
+- **Le bot Telegram ne peut pas y tourner en boucle** : Vercel n'exécute pas de
+  processus permanent. Il lui faut soit un webhook (voir ci-dessous), soit un
+  autre hébergeur.
+- **La limite de débit devient indicative** : chaque instance de fonction est
+  éphémère, le compteur repart à zéro — et plusieurs instances peuvent coexister.
+  Pour une limite fiable, il faut un stockage partagé (Redis, Upstash…).
+- **Le contrôle d'adresse e-mail nécessite une clé HIBP** ; sans elle, la route
+  répond « non configuré ».
+
+### Ancien hébergement : Render
+
+Les instructions Render restent valables (Procfile présent) mais **le mode
+« service web » ne convient plus** si vous suivez la structure `app/` :
+la commande de démarrage doit être
+`uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 
 ## Limites connues, écrites noir sur blanc
 
