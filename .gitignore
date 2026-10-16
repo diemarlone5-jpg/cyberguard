@@ -1,2 +1,23 @@
+# Secrets — ne jamais versionner
 .env
 .env.local
+.env.*.local
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Journaux et fichiers temporaires
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

@@ -1,7 +1,6 @@
-fastapi
-uvicorn
-zxcvbn-python
-requests
-pydantic
-email-validator
-python-telegram-bot
+# Dépendances du serveur CyberGuard — versions figées (testées ensemble).
+fastapi==0.143.3
+uvicorn[standard]==0.54.0
+pydantic[email]==2.14.1
+httpx==0.28.1
+python-telegram-bot==22.8
