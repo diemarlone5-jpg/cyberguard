@@ -101,7 +101,7 @@ class LimiteDebit(BaseHTTPMiddleware):
         return request.client.host if request.client else "inconnue"
 
     async def dispatch(self, request: Request, call_next) -> Response:
-        if request.url.path.startswith(("/static", "/api/health")):
+        if request.url.path.startswith(("/static", "/api/health", "/api/telegram")):
             return await call_next(request)
 
         maintenant = time.monotonic()

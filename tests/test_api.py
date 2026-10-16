@@ -142,3 +142,76 @@ def test_calcul_de_robustesse() -> None:
     solide = evaluer("C0rrect-Horse-Battery!")
     assert solide.robuste is True
     assert solide.score == 4
+
+
+# --- bot Telegram en mode webhook -------------------------------------------
+
+def _application_bot(secret: str = "secret-de-test", jeton: str = "123:ABC"):
+    return creer_application(
+        Reglages(environnement="test", jeton_telegram=jeton, secret_webhook=secret)
+    )
+
+
+def test_webhook_refuse_sans_secret() -> None:
+    client = TestClient(_application_bot())
+    reponse = client.post(
+        "/api/telegram/webhook",
+        json={"message": {"text": "abc", "chat": {"id": 1}, "message_id": 2}},
+    )
+    assert reponse.status_code == 403
+
+
+def test_webhook_refuse_un_mauvais_secret() -> None:
+    client = TestClient(_application_bot())
+    reponse = client.post(
+        "/api/telegram/webhook",
+        json={"message": {"text": "abc", "chat": {"id": 1}}},
+        headers={"X-Telegram-Bot-Api-Secret-Token": "mauvais"},
+    )
+    assert reponse.status_code == 403
+
+
+def test_webhook_refuse_quand_le_bot_n_est_pas_configure() -> None:
+    client = TestClient(creer_application(Reglages(environnement="test")))
+    reponse = client.post("/api/telegram/webhook", json={})
+    assert reponse.status_code == 503
+
+
+def test_webhook_traite_un_mot_de_passe(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Avec le bon secret : 200, le mot de passe n'apparaît nulle part."""
+    envoyes: list[tuple] = []
+    effaces: list[tuple] = []
+
+    async def faux_repondre(jeton, conversation, texte):
+        envoyes.append((conversation, texte))
+
+    async def faux_effacer(jeton, conversation, message):
+        effaces.append((conversation, message))
+        return True
+
+    async def fausse_plage(self, prefixe):
+        return {"0000000000000000000000000000000000a": 7}
+
+    monkeypatch.setattr("app.telegram.repondre", faux_repondre)
+    monkeypatch.setattr("app.telegram.effacer_message", faux_effacer)
+    monkeypatch.setattr("app.main.VerificateurFuite.plage", fausse_plage)
+
+    client = TestClient(_application_bot())
+    reponse = client.post(
+        "/api/telegram/webhook",
+        json={
+            "message": {
+                "text": "MotDePasse-Test-42",
+                "chat": {"id": 99},
+                "message_id": 7,
+            }
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": "secret-de-test"},
+    )
+
+    assert reponse.status_code == 200
+    assert effaces == [(99, 7)], "le message contenant le mot de passe doit être effacé"
+    assert len(envoyes) == 1
+    texte_envoye = envoyes[0][1]
+    assert "Rapport d'audit" in texte_envoye
+    assert "MotDePasse-Test-42" not in texte_envoye, "le mot de passe ne doit jamais être renvoyé"

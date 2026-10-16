@@ -134,6 +134,38 @@ Les instructions Render restent valables (Procfile présent) mais **le mode
 la commande de démarrage doit être
 `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 
+## Le bot Telegram (mode webhook)
+
+Vercel n'exécute pas de processus permanent : le bot ne peut pas interroger
+Telegram en boucle. Telegram pousse donc chaque message vers
+`/api/telegram/webhook`, que l'application traite en une requête.
+
+1. Créez un jeton avec @BotFather, puis mettez-le dans `.env` :
+
+```bash
+TELEGRAM_BOT_TOKEN=votre_jeton
+```
+
+2. Enregistrez le webhook (le script génère le secret et écrit dans `.env`) :
+
+```bash
+python -m bot.webhook --set https://votre-site.vercel.app
+```
+
+3. Recopiez dans Vercel (Settings → Environment Variables) les **deux** valeurs
+   du fichier `.env` : `TELEGRAM_BOT_TOKEN` et `TELEGRAM_WEBHOOK_SECRET`.
+
+4. Vérifiez l'état à tout moment :
+
+```bash
+python -m bot.webhook --statut
+```
+
+Le bot vérifie le secret à chaque requête (`X-Telegram-Bot-Api-Secret-Token`) :
+sans lui, la route répond 403 — sinon n'importe qui pourrait faire envoyer des
+messages par votre bot. Il supprime aussi le message contenant le mot de passe
+après l'analyse.
+
 ## Limites connues, écrites noir sur blanc
 
 - La limite de débit est stockée **en mémoire** : elle protège une instance

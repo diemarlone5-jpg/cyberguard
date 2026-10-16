@@ -25,6 +25,7 @@ from .hibp import HibpIndisponible, fuites_pour
 from .pwned import FuiteIndisponible, VerificateurFuite
 from .schemas import AuditMotDePasse, VerificationEmail
 from .security import EnTetesSecurite, LimiteDebit, TailleMaximale
+from .telegram import creer_routeur_telegram
 
 RACINE = Path(__file__).resolve().parent.parent
 FRONTEND = RACINE / "frontend"
@@ -74,6 +75,9 @@ def creer_application(reglages: Reglages | None = None) -> FastAPI:
             allow_credentials=False,
         )
 
+    # --- bot Telegram en mode webhook (la seule forme compatible Vercel)
+    application.include_router(creer_routeur_telegram(reglages_courants, verificateur_courant))
+
     # --- réponses d'erreur assainies : jamais la valeur envoyée par le client
     @application.exception_handler(RequestValidationError)
     async def erreur_de_validation(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -112,6 +116,7 @@ def creer_application(reglages: Reglages | None = None) -> FastAPI:
             "environnement": reglages.environnement,
             "verification_fuite_mot_de_passe": True,
             "verification_fuite_email": reglages.verifications_fuite_email_actives,
+            "bot_telegram": bool(reglages.jeton_telegram and reglages.secret_webhook),
         }
 
     # --- audit de mot de passe : le mot de passe reste chez le client

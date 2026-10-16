@@ -29,6 +29,7 @@ class Reglages:
     environnement: str = "development"
     origines_autorisees: tuple[str, ...] = ()
     jeton_telegram: str | None = None
+    secret_webhook: str | None = None
     cle_hibp: str | None = None
     url_api_bot: str | None = None
     taille_max_corps: int = TAILLE_MAX_CORPS
@@ -53,6 +54,7 @@ def charger() -> Reglages:
         environnement=os.getenv("ENVIRONMENT", "development"),
         origines_autorisees=_liste(os.getenv("ALLOWED_ORIGINS", "")),
         jeton_telegram=os.getenv("TELEGRAM_BOT_TOKEN") or None,
+        secret_webhook=os.getenv("TELEGRAM_WEBHOOK_SECRET") or None,
         cle_hibp=os.getenv("HIBP_API_KEY") or None,
         url_api_bot=os.getenv("CYBERGUARD_API_URL") or None,
         taille_max_corps=int(os.getenv("MAX_BODY_BYTES", TAILLE_MAX_CORPS)),
